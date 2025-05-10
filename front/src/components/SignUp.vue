@@ -34,64 +34,59 @@
     </v-container>
 </template>
 
-<script>
-import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import { Auth } from 'aws-amplify';
-import router from '@/router';
+import { useRouter } from 'vue-router';
 
-export default defineComponent({
-  emits:['signup-complete'], 
-  setup(props, { emit }) {   
-    const email = ref('');
-    const password = ref('');
-    const confirmPassword = ref('')
-    const code = ref('');
+const emit = defineEmits<{
+  (e: 'signup-complete'): void;
+}>();
 
-    const error = ref('');
-    const success= ref('')
-    const loading = ref(false);
-    const signUpComplete = ref(false)
+const router = useRouter();
 
-    const signUp = async () => {
-      error.value = '';
-      success.value = '';
+const email = ref<string>('');
+const password = ref<string>('');
+const confirmPassword = ref<string>('');
+const code = ref<string>('');
 
-      if (password.value !== confirmPassword.value) {
-        console.log("password",password.value)
-        console.log("confirmPassword", confirmPassword.value)
-        error.value = 'Passwords do not match.';
-        return;
-      }
+const error = ref<string>('');
+const success = ref<string>('');
+const loading = ref<boolean>(false);
+const signUpComplete = ref<boolean>(false);
 
-      loading.value = true;
-      try {
-        await Auth.signUp({
-          username: email.value,
-          password: password.value,
-          attributes: { email: email.value },
-        });
+const signUp = async (): Promise<void> => {
+  error.value = '';
+  success.value = '';
 
-        signUpComplete.value=true
+  if (password.value !== confirmPassword.value) {
+    error.value = 'Passwords do not match.';
+    return;
+  }
 
+  loading.value = true;
+  try {
+    await Auth.signUp({
+      username: email.value,
+      password: password.value,
+      attributes: { email: email.value },
+    });
+    signUpComplete.value = true;
+    emit('signup-complete');
+  } catch (err: any) {
+    error.value = err.message || 'Signup failed.';
+  } finally {
+    loading.value = false;
+  }
+};
 
-      } catch (err) {
-        error.value = err.message || 'Signup failed.';
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    const confirmCode = async () => {
-        try {
-            await Auth.confirmSignUp(email.value, code.value);
-            success.value = 'Email confirmed! You can now log in.';
-            router.push('/');
-        } catch (err) {
-            error.value = err.message || 'Confirmation failed.';
-        }
-    };
-
-    return { email, password,confirmPassword, code, success ,error, loading, signUp, confirmCode, signUpComplete };
-  },
-});
+const confirmCode = async (): Promise<void> => {
+  try {
+    await Auth.confirmSignUp(email.value, code.value);
+    success.value = 'Email confirmed! You can now log in.';
+    router.push('/');
+  } catch (err: any) {
+    error.value = err.message || 'Confirmation failed.';
+  }
+};
 </script>

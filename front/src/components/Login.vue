@@ -14,6 +14,9 @@
 
                     <v-text-field v-if="showNewPasswordForm" v-model="confirmPassword" label="Confirm Password" type="password" required prepend-inner-icon="mdi-lock-check"/>
 
+                      <div class="text-right mb-2">
+                        <v-btn text class="text-caption" @click="goToForgotPassword">Reset Password</v-btn>
+                      </div>
 
 
                     <v-alert v-if="error" type="error" class="mt-2" dense>
@@ -33,73 +36,60 @@
     </v-container>
 </template>
 
-<script>
-import { defineComponent, ref } from 'vue';
-import { Auth } from 'aws-amplify';
-import router from '@/router';
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import type { CognitoUser } from 'amazon-cognito-identity-js';
+
+import { Auth} from 'aws-amplify';
 
 
-export default defineComponent({
-  emits: ['login-success'], 
-  setup(props, { emit }) {   
-    const email = ref('');
-    const password = ref('');
-    const newPassword = ref('');
-    const confirmPassword = ref('');
-    const error = ref('');
-    const loading = ref(false);
-    const currentUser = ref(null)
-    const showNewPasswordForm = ref(false)
+const email = ref<string>('');
+const password = ref<string>('');
+const newPassword = ref<string>('');
+const confirmPassword = ref<string>('');
+const error = ref<string>('');
+const loading = ref<boolean>(false);
+const showNewPasswordForm = ref<boolean>(false);
+const currentUser = ref<CognitoUser | null>(null);
 
-    const signIn = async () => {
-      error.value = '';
-      loading.value = true;
+const router = useRouter();
 
-      try {
-        const user=await Auth.signIn(email.value, password.value);
+const emit = defineEmits<{
+  (e: 'login-success'): void;
+}>();
 
-        if(user.challengeName === 'NEW_PASSWORD_REQUIRED'){
-          console.log("CHANGE PASSWORD")
-          currentUser=user
-          showNewPasswordForm=true
-          return
-        }
 
-        emit('login-success'); 
-        router.push('/home')
-      } catch (err) {
-        error.value = err.message || 'Login failed';
-      } finally {
-        loading.value = false;
-      }
-    };
 
-    const goToSignup = () => {
-      router.push('/signUp');
-    };
+const signIn = async (): Promise<void> => {
+  error.value = '';
+  loading.value = true;
 
-    const changePassword = async() => {
-      if(newPassword.value !== confirmPassword.value){
-        error.value="Password doesn't match"
-        return;
-      }
+  try {
+    const user = await Auth.signIn(email.value, password.value);
 
-      try{
-        loading.value=true
-        await Auth.completeNewPassword(currentUser.value, newPassword.value)
-        emit('login-success')
-        router.push('/home')
-      }catch(err){
-        error.value =err.message
-      }finally{
-        loading.value=false
-      }
+    if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
+      currentUser.value = user;
+      showNewPasswordForm.value = true;
+      return;
+    }
 
-    };
+    emit('login-success');
+    router.push('/home');
+  } catch (err: any) {
+    error.value = err.message || 'Login failed';
+  } finally {
+    loading.value = false;
+  }
+};
 
-    return { email, password, error, loading, signIn, goToSignup };
-  },
+const goToSignup = (): void => {
+  router.push('/signUp');
+};
 
-  
-});
+const goToForgotPassword = (): void => {
+  router.push('/forgot-password');
+};
+
+   
 </script>
