@@ -1,0 +1,26 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "tests/**/*"
+  ],
+ "compilerOptions": {
+  "allowJs": true,
+  "checkJs": false,
+  "jsx": "preserve",
+  "noEmit": true,
+  "isolatedModules": true,
+  "baseUrl": ".",
+  "esModuleInterop": true,
+  "allowSyntheticDefaultImports": true,
+  "types": [
+    "vite/client"
+  ],
+  "paths": {
+    "@/*": [
+      "src/*"
+    ]
+  }
+}
+}
