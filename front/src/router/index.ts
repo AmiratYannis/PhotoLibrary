@@ -1,4 +1,3 @@
-import HelloWorld from '@/components/HelloWorld.vue';
 import Login from '@/components/Login/Login.vue';
 import RequestResetPassword from '@/components/Login/RequestPassword/RequestResetPassword.vue';
 import SignUp from '@/components/SignUp/SignUp.vue';

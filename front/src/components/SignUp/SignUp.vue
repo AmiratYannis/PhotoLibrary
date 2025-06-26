@@ -38,6 +38,7 @@
 import { ref } from 'vue';
 import { Auth } from 'aws-amplify';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const emit = defineEmits<{
   (e: 'signup-complete'): void;
@@ -83,6 +84,23 @@ const signUp = async (): Promise<void> => {
 const confirmCode = async (): Promise<void> => {
   try {
     await Auth.confirmSignUp(email.value, code.value);
+
+    const user= await Auth.signIn(email.value, password.value)
+
+    console.log("user",user)
+
+    
+
+    axios.post('http://localhost:3000/api/users',{ userId: user.attributes.sub, email: user.attributes.email })
+    .then((res)=>{
+      console.log("User added ")
+    })
+    .catch((err)=>{
+      console.log("User not existing")
+    })
+
+
+
     success.value = 'Email confirmed! You can now log in.';
     router.push('/');
   } catch (err: any) {
