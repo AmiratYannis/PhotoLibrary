@@ -9,7 +9,7 @@ const Album = require('./models/Album')
 const app = express()
 
 const MONGO_URL = "mongodb://localhost:27017/photolibrary"
-const allowedOrigins = ['http://localhost:5173'];
+const allowedOrigins = ['http://localhost:5173', 'https://main.d2sdaq07l1bg2y.amplifyapp.com'];
 
 
 mongoose.connect(MONGO_URL)
