@@ -58,7 +58,6 @@ app.post('/api/albums', async (req, res) => {
 
         const album = new Album({ title, owner: owner._id })
         await album.save()
-        console.log('Album created:', album)
         res.status(201).send(album)
     } catch (err) {
         res.status(400).send({ error: err.message })
@@ -68,7 +67,6 @@ app.post('/api/albums', async (req, res) => {
 app.get('/api/albums', async (req, res) => {
     try {
         const albums = await Album.find()
-        console.log('Albums retrieved:', albums)
         res.status(200).send(albums)
     } catch (err) {
         res.status(400).send({ error: err.message })
