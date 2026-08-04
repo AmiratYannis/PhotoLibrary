@@ -65,3 +65,13 @@ app.post('/api/albums', async (req, res) => {
     }
 })
 
+app.get('/api/albums', async (req, res) => {
+    try {
+        const albums = await Album.find()
+        console.log('Albums retrieved:', albums)
+        res.status(200).send(albums)
+    } catch (err) {
+        res.status(400).send({ error: err.message })
+    }
+})
+
