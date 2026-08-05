@@ -22,7 +22,7 @@
     </v-expand-transition>
 
     <v-row class="mt-4">
-        <v-col v-for="album in albums" :key="album._id" cols="12" sm="6" md="4" lg="3">
+        <v-col v-for="album in albums" :key="album._id" cols="12">
             <AlbumView :album="album" />
         </v-col>
     </v-row>
