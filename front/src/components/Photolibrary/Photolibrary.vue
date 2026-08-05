@@ -20,17 +20,31 @@
             <CreateAlbumForm @album-created="fetchAlbums" />
         </div>
     </v-expand-transition>
+
+    <v-row class="mt-4">
+        <v-col v-for="album in albums" :key="album._id" cols="12" sm="6" md="4" lg="3">
+            <AlbumView :album="album" />
+        </v-col>
+    </v-row>
     </v-container>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import CreateAlbumForm from './CreateAlbumForm/CreateAlbumForm.vue'
+import AlbumView from './Albums/AlbumView.vue'
 
 
 const showForm = ref(false)
+const albums = ref([])
 
+const fetchAlbums = async () => {
+    const res = await axios.get('http://localhost:3000/api/albums')
+    albums.value = res.data
+}
 
+onMounted(fetchAlbums)
 
 </script>
 
