@@ -4,6 +4,7 @@ const path = require("path")
 const cors = require('cors');
 const User = require('./models/User')
 const Album = require('./models/Album')
+const requireAuth = require('./middleware/auth')
 
 
 const app = express()
@@ -34,12 +35,12 @@ app.listen(3000, () => {
 app.use(express.urlencoded({ extended: false }))
 
 
-app.post('/api/users', async (req, res) => {
-    const { userId, email } = req.body
+app.post('/api/users', requireAuth, async (req, res) => {
+    const { userId, userEmail } = req
     try {
         const user = await User.findOneAndUpdate(
             { userId },
-            { userId, email },
+            { userId, email: userEmail },
             { upsert: true, new: true, setDefaultsOnInsert: true }
         )
         res.status(200).send(user);
@@ -48,10 +49,10 @@ app.post('/api/users', async (req, res) => {
     }
 })
 
-app.post('/api/albums', async (req, res) => {
-    const { title, userId } = req.body
+app.post('/api/albums', requireAuth, async (req, res) => {
+    const { title } = req.body
     try {
-        const owner = await User.findOne({ userId })
+        const owner = await User.findOne({ userId: req.userId })
         if (!owner) {
             return res.status(404).send({ error: 'User not found' })
         }
@@ -64,9 +65,14 @@ app.post('/api/albums', async (req, res) => {
     }
 })
 
-app.get('/api/albums', async (req, res) => {
+app.get('/api/albums', requireAuth, async (req, res) => {
     try {
-        const albums = await Album.find()
+        const owner = await User.findOne({ userId: req.userId })
+        if (!owner) {
+            return res.status(404).send({ error: 'User not found' })
+        }
+
+        const albums = await Album.find({ owner: owner._id })
         res.status(200).send(albums)
     } catch (err) {
         res.status(400).send({ error: err.message })

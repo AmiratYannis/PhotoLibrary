@@ -43,6 +43,7 @@ import type { CognitoUser } from 'amazon-cognito-identity-js';
 
 import { Auth} from 'aws-amplify';
 import axios from 'axios';
+import { getAuthHeader } from '@/utils/auth';
 
 
 const email = ref<string>('');
@@ -76,9 +77,8 @@ const signIn = async (): Promise<void> => {
     }
 
     try {
-      await axios.post('http://localhost:3000/api/users', {
-        userId: user.attributes.sub,
-        email: user.attributes.email,
+      await axios.post('http://localhost:3000/api/users', {}, {
+        headers: await getAuthHeader(),
       });
     } catch (syncErr) {
       console.error('Failed to sync user with backend', syncErr);

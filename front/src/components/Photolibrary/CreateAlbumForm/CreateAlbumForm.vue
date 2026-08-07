@@ -19,8 +19,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Auth } from 'aws-amplify';
 import axios from 'axios';
+import { getAuthHeader } from '@/utils/auth';
 
 const emit = defineEmits<{
   (e: 'album-created'): void;
@@ -35,17 +35,13 @@ const createAlbum = async (): Promise<void> => {
   loading.value = true;
 
   try {
-    const user = await Auth.currentAuthenticatedUser();
+    const headers = await getAuthHeader();
 
-    await axios.post('http://localhost:3000/api/users', {
-      userId: user.attributes.sub,
-      email: user.attributes.email,
-    });
+    await axios.post('http://localhost:3000/api/users', {}, { headers });
 
     await axios.post('http://localhost:3000/api/albums', {
       title: albumName.value,
-      userId: user.attributes.sub,
-    });
+    }, { headers });
 
     albumName.value = '';
     emit('album-created');

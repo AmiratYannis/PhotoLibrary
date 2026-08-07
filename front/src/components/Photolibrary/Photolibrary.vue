@@ -32,6 +32,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { getAuthHeader } from '@/utils/auth'
 import CreateAlbumForm from './CreateAlbumForm/CreateAlbumForm.vue'
 import AlbumView from './Albums/AlbumView.vue'
 
@@ -40,7 +41,8 @@ const showForm = ref(false)
 const albums = ref([])
 
 const fetchAlbums = async () => {
-    const res = await axios.get('http://localhost:3000/api/albums')
+    const headers = await getAuthHeader()
+    const res = await axios.get('http://localhost:3000/api/albums', { headers })
     albums.value = res.data
 }
 
