@@ -14,6 +14,16 @@
                 <v-alert v-if="error" type="error" icon="false" class="mt-2" dense>
                     {{ error }}
                 </v-alert>
+
+                <template v-if="pictures.length">
+                    <v-divider class="my-4"></v-divider>
+                    <div class="text-subtitle-2 mb-2">Pictures in this album</div>
+                    <v-row>
+                        <v-col v-for="picture in pictures" :key="picture._id" cols="4">
+                            <v-img :src="picture.url" :alt="picture.name" aspect-ratio="1" cover></v-img>
+                        </v-col>
+                    </v-row>
+                </template>
             </v-card-text>
 
             <v-card-actions>
@@ -38,6 +48,10 @@ const props = defineProps({
     modelValue: {
         type: Boolean,
         default: false
+    },
+    pictures: {
+        type: Array,
+        default: () => []
     }
 })
 

@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const path = require("path")
 const crypto = require('crypto')
 const cors = require('cors');
-const { PutObjectCommand } = require('@aws-sdk/client-s3')
+const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const User = require('./models/User')
 const Album = require('./models/Album')
@@ -111,6 +111,36 @@ app.post('/api/albums/:albumId/upload-url', requireAuth, async (req, res) => {
         const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 })
 
         res.status(200).send({ uploadUrl, key })
+    } catch (err) {
+        res.status(400).send({ error: err.message })
+    }
+})
+
+app.get('/api/albums/:albumId/pictures', requireAuth, async (req, res) => {
+    const { albumId } = req.params
+    try {
+        const owner = await User.findOne({ userId: req.userId })
+        if (!owner) {
+            return res.status(404).send({ error: 'User not found' })
+        }
+
+        const album = await Album.findOne({ _id: albumId, owner: owner._id })
+        if (!album) {
+            return res.status(404).send({ error: 'Album not found' })
+        }
+
+        const pictures = await Picture.find({ album: album._id })
+
+        const picturesWithUrls = await Promise.all(pictures.map(async (picture) => {
+            const command = new GetObjectCommand({
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: picture.url,
+            })
+            const url = await getSignedUrl(s3, command, { expiresIn: 300 })
+            return { _id: picture._id, name: picture.name, url }
+        }))
+
+        res.status(200).send(picturesWithUrls)
     } catch (err) {
         res.status(400).send({ error: err.message })
     }
