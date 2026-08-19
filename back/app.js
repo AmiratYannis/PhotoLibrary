@@ -159,6 +159,11 @@ app.post('/api/pictures', requireAuth, async (req, res) => {
             return res.status(404).send({ error: 'Album not found' })
         }
 
+        const expectedPrefix = `users/${owner._id}/${albumId}/`
+        if (typeof key !== 'string' || !key.startsWith(expectedPrefix)) {
+            return res.status(403).send({ error: 'Invalid picture key' })
+        }
+
         const picture = new Picture({ name, url: key, album: album._id })
         await picture.save()
 
