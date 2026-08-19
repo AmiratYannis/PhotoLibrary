@@ -3,7 +3,7 @@
         <v-card-title>{{ album.title }}</v-card-title>
 
         <v-card-text>
-            <v-btn prepend-icon="mdi-image" color="primary" @click="dialog = true">Add pictures</v-btn>
+            <v-btn prepend-icon="mdi-image" color="primary" @click="dialog = true">Manage Picture</v-btn>
 
             <v-row class="mt-2">
                 <v-col v-for="picture in pictures" :key="picture._id" cols="6" sm="4" md="3" lg="2">
@@ -12,7 +12,7 @@
             </v-row>
         </v-card-text>
 
-        <PictureModal v-model="dialog" :album="album" :pictures="pictures" @picture-uploaded="fetchPictures" />
+        <ManagePictureModal v-model="dialog" :album="album" :pictures="pictures" @picture-uploaded="fetchPictures" />
     </v-card>
 </template>
 
@@ -20,7 +20,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { getAuthHeader } from '@/utils/auth'
-import PictureModal from './PictureModal.vue'
+import ManagePictureModal from './ManagePictureModal.vue'
 
 const props = defineProps({
     album: {

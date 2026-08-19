@@ -1,7 +1,7 @@
 <template>
     <v-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" max-width="480">
         <v-card>
-            <v-card-title class="text-h6">Add picture to {{ album.title }}</v-card-title>
+            <v-card-title class="text-h6">Manage picture of {{ album.title }} album</v-card-title>
 
             <v-card-text>
                 <v-file-input
@@ -15,12 +15,21 @@
                     {{ error }}
                 </v-alert>
 
-                <template v-if="pictures.length">
+                <template v-if="visiblePictures.length">
                     <v-divider class="my-4"></v-divider>
                     <div class="text-subtitle-2 mb-2">Pictures in this album</div>
                     <v-row>
-                        <v-col v-for="picture in pictures" :key="picture._id" cols="4">
-                            <v-img :src="picture.url" :alt="picture.name" aspect-ratio="1" cover></v-img>
+                        <v-col v-for="picture in visiblePictures" :key="picture._id" cols="4">
+                            <div style="position: relative">
+                                <v-img :src="picture.url" :alt="picture.name" aspect-ratio="1" cover></v-img>
+                                <v-btn
+                                    icon="mdi-close"
+                                    size="x-small"
+                                    color="error"
+                                    style="position: absolute; top: 4px; right: 4px;"
+                                    @click="hidePicture(picture._id)"
+                                ></v-btn>
+                            </div>
                         </v-col>
                     </v-row>
                 </template>
@@ -36,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import axios from 'axios'
 import { getAuthHeader } from '@/utils/auth'
 
@@ -60,6 +69,15 @@ const emit = defineEmits(['update:modelValue', 'picture-uploaded'])
 const selectedFile = ref(null)
 const uploading = ref(false)
 const error = ref('')
+const visiblePictures = ref([...props.pictures])
+
+watch(() => props.pictures, (newPictures) => {
+    visiblePictures.value = [...newPictures]
+})
+
+const hidePicture = (pictureId) => {
+    visiblePictures.value = visiblePictures.value.filter((picture) => picture._id !== pictureId)
+}
 
 const cancel = () => {
     emit('update:modelValue', false)
