@@ -38,14 +38,14 @@
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn text @click="cancel">Cancel</v-btn>
-                <v-btn color="primary" :loading="uploading" :disabled="!selectedFile" @click="confirm">Confirm</v-btn>
+                <v-btn color="primary" :loading="uploading" :disabled="!hasChanges" @click="confirm">Confirm</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import axios from 'axios'
 import { getAuthHeader } from '@/utils/auth'
 
@@ -75,9 +75,20 @@ watch(() => props.pictures, (newPictures) => {
     visiblePictures.value = [...newPictures]
 })
 
+watch(() => props.modelValue, (isOpen) => {
+    if (!isOpen) {
+        visiblePictures.value = [...props.pictures]
+    }
+})
+
 const hidePicture = (pictureId) => {
     visiblePictures.value = visiblePictures.value.filter((picture) => picture._id !== pictureId)
 }
+
+const hasChanges = computed(() => {
+    const file = Array.isArray(selectedFile.value) ? selectedFile.value[0] : selectedFile.value
+    return !!file || visiblePictures.value.length !== props.pictures.length
+})
 
 const cancel = () => {
     emit('update:modelValue', false)
