@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const path = require("path")
 const crypto = require('crypto')
 const cors = require('cors');
-const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3')
+const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const User = require('./models/User')
 const Album = require('./models/Album')
@@ -171,6 +171,40 @@ app.post('/api/pictures', requireAuth, async (req, res) => {
         await album.save()
 
         res.status(201).send(picture)
+    } catch (err) {
+        res.status(400).send({ error: err.message })
+    }
+})
+
+app.delete('/api/pictures/:pictureId', requireAuth, async (req, res) => {
+    const { pictureId } = req.params
+    try {
+        const owner = await User.findOne({ userId: req.userId })
+        if (!owner) {
+            return res.status(404).send({ error: 'User not found' })
+        }
+
+        const picture = await Picture.findById(pictureId)
+        if (!picture) {
+            return res.status(404).send({ error: 'Picture not found' })
+        }
+
+        const album = await Album.findOne({ _id: picture.album, owner: owner._id })
+        if (!album) {
+            return res.status(404).send({ error: 'Picture not found' })
+        }
+
+        await s3.send(new DeleteObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: picture.url,
+        }))
+
+        await Picture.deleteOne({ _id: picture._id })
+
+        album.pictures.pull(picture._id)
+        await album.save()
+
+        res.status(204).send()
     } catch (err) {
         res.status(400).send({ error: err.message })
     }
