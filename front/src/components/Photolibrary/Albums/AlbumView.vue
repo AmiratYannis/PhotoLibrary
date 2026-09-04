@@ -12,6 +12,11 @@
             </v-row>
         </v-card-text>
 
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn icon="mdi-trash-can" color="error"></v-btn>
+        </v-card-actions>
+
         <ManagePictureModal v-model="dialog" :album="album" :pictures="pictures" @picture-uploaded="fetchPictures" />
     </v-card>
 </template>
