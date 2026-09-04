@@ -14,10 +14,11 @@
 
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn icon="mdi-trash-can" color="error"></v-btn>
+            <v-btn icon="mdi-trash-can" color="error" @click="deleteDialog = true"></v-btn>
         </v-card-actions>
 
         <ManagePictureModal v-model="dialog" :album="album" :pictures="pictures" @picture-uploaded="fetchPictures" />
+        <DeleteAlbumModal v-model="deleteDialog" :album="album" @confirm="deleteDialog = false" />
     </v-card>
 </template>
 
@@ -26,6 +27,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { getAuthHeader } from '@/utils/auth'
 import ManagePictureModal from './ManagePictureModal.vue'
+import DeleteAlbumModal from './DeleteAlbumModal.vue'
 
 const props = defineProps({
     album: {
@@ -35,6 +37,7 @@ const props = defineProps({
 })
 
 const dialog = ref(false)
+const deleteDialog = ref(false)
 const pictures = ref([])
 
 const fetchPictures = async () => {
