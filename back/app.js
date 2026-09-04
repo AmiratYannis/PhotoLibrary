@@ -210,3 +210,34 @@ app.delete('/api/pictures/:pictureId', requireAuth, async (req, res) => {
     }
 })
 
+app.delete('/api/albums/:albumId', requireAuth, async (req, res) => {
+    const { albumId } = req.params
+    try {
+        const owner = await User.findOne({ userId: req.userId })
+        if (!owner) {
+            return res.status(404).send({ error: 'User not found' })
+        }
+
+        const album = await Album.findOne({ _id: albumId, owner: owner._id })
+        if (!album) {
+            return res.status(404).send({ error: 'Album not found' })
+        }
+
+        const pictures = await Picture.find({ album: album._id })
+
+        await Promise.all(pictures.map((picture) =>
+            s3.send(new DeleteObjectCommand({
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: picture.url,
+            }))
+        ))
+
+        await Picture.deleteMany({ album: album._id })
+        await Album.deleteOne({ _id: album._id })
+
+        res.status(204).send()
+    } catch (err) {
+        res.status(400).send({ error: err.message })
+    }
+})
+
