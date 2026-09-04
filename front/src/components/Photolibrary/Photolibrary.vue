@@ -23,7 +23,7 @@
 
     <v-row class="mt-4">
         <v-col v-for="album in albums" :key="album._id" cols="12">
-            <AlbumView :album="album" />
+            <AlbumView :album="album" @album-deleted="removeAlbum" />
         </v-col>
     </v-row>
     </v-container>
@@ -44,6 +44,10 @@ const fetchAlbums = async () => {
     const headers = await getAuthHeader()
     const res = await axios.get('http://localhost:3000/api/albums', { headers })
     albums.value = res.data
+}
+
+const removeAlbum = (albumId) => {
+    albums.value = albums.value.filter((album) => album._id !== albumId)
 }
 
 onMounted(fetchAlbums)

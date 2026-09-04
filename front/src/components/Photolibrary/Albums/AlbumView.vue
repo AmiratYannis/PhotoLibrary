@@ -18,7 +18,7 @@
         </v-card-actions>
 
         <ManagePictureModal v-model="dialog" :album="album" :pictures="pictures" @picture-uploaded="fetchPictures" />
-        <DeleteAlbumModal v-model="deleteDialog" :album="album" @confirm="deleteDialog = false" />
+        <DeleteAlbumModal v-model="deleteDialog" :album="album" @deleted="$emit('album-deleted', album._id)" />
     </v-card>
 </template>
 
@@ -35,6 +35,8 @@ const props = defineProps({
         required: true
     }
 })
+
+defineEmits(['album-deleted'])
 
 const dialog = ref(false)
 const deleteDialog = ref(false)
