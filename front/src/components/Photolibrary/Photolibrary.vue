@@ -6,7 +6,9 @@
                 <h2 class="text-h5">Photo Library</h2>
             </v-col>
 
-        
+            <v-col cols="12" md="6" class="text-md-right">
+                <v-btn text prepend-icon="mdi-logout" @click="signOut">Disconnect</v-btn>
+            </v-col>
         </v-row>
         <v-row ustify="space-between" align="center" class="mb-6">
             <v-btn color="primary" @click="showForm = !showForm">
@@ -32,11 +34,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { Auth } from 'aws-amplify'
+import { useRouter } from 'vue-router'
 import { getAuthHeader } from '@/utils/auth'
 import CreateAlbumForm from './CreateAlbumForm/CreateAlbumForm.vue'
 import AlbumView from './Albums/AlbumView.vue'
 
 
+const router = useRouter()
 const showForm = ref(false)
 const albums = ref([])
 
@@ -48,6 +53,11 @@ const fetchAlbums = async () => {
 
 const removeAlbum = (albumId) => {
     albums.value = albums.value.filter((album) => album._id !== albumId)
+}
+
+const signOut = async () => {
+    await Auth.signOut()
+    router.push('/')
 }
 
 onMounted(fetchAlbums)
