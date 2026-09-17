@@ -1,7 +1,7 @@
 <template>
     <v-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" max-width="480">
         <v-card>
-            <v-card-title class="text-h6">Manage picture of {{ album.title }} album</v-card-title>
+            <v-card-title class="text-h6">Manage {{ album.title }} album</v-card-title>
 
             <v-card-text>
                 <v-text-field
