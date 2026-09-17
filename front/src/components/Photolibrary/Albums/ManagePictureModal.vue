@@ -101,7 +101,9 @@ const hidePicture = (pictureId) => {
 }
 
 const hasChanges = computed(() => {
+    // v-file-input's v-model can be a single File or an array of Files depending on Vuetify version/props
     const file = Array.isArray(selectedFile.value) ? selectedFile.value[0] : selectedFile.value
+    // true if a new file is queued for upload, or at least one picture was marked for removal
     return !!file || visiblePictures.value.length !== props.pictures.length
 })
 
@@ -139,6 +141,7 @@ const applyChanges = async () => {
             await axios.delete(`http://localhost:3000/api/pictures/${picture._id}`, { headers })
         }
 
+        // same normalization as in hasChanges above
         const file = Array.isArray(selectedFile.value) ? selectedFile.value[0] : selectedFile.value
         if (file) {
             const { data } = await axios.post(
