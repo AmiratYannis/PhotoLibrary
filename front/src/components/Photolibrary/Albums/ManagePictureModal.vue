@@ -4,6 +4,13 @@
             <v-card-title class="text-h6">Manage picture of {{ album.title }} album</v-card-title>
 
             <v-card-text>
+                <v-text-field
+                    v-model="title"
+                    label="Album name"
+                    prepend-inner-icon="mdi-tag"
+                    class="mb-2"
+                ></v-text-field>
+
                 <v-file-input
                     v-model="selectedFile"
                     label="Choose a picture"
@@ -78,11 +85,12 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['update:modelValue', 'picture-uploaded'])
+const emit = defineEmits(['update:modelValue', 'picture-uploaded', 'album-updated'])
 
 const selectedFile = ref(null)
 const uploading = ref(false)
 const error = ref('')
+const title = ref(props.album.title)
 const visiblePictures = ref([...props.pictures])
 const confirmDeleteDialog = ref(false)
 
@@ -93,6 +101,7 @@ watch(() => props.pictures, (newPictures) => {
 watch(() => props.modelValue, (isOpen) => {
     if (!isOpen) {
         visiblePictures.value = [...props.pictures]
+        title.value = props.album.title
     }
 })
 
@@ -104,7 +113,7 @@ const hasChanges = computed(() => {
     // v-file-input's v-model can be a single File or an array of Files depending on Vuetify version/props
     const file = Array.isArray(selectedFile.value) ? selectedFile.value[0] : selectedFile.value
     // true if a new file is queued for upload, or at least one picture was marked for removal
-    return !!file || visiblePictures.value.length !== props.pictures.length
+    return !!file || visiblePictures.value.length !== props.pictures.length || title.value !== props.album.title
 })
 
 const removedPictures = computed(() => {
@@ -114,6 +123,7 @@ const removedPictures = computed(() => {
 const cancel = () => {
     emit('update:modelValue', false)
     selectedFile.value = null
+    title.value = props.album.title
     error.value = ''
 }
 
@@ -136,6 +146,15 @@ const applyChanges = async () => {
 
     try {
         const headers = await getAuthHeader()
+
+        if (title.value !== props.album.title) {
+            await axios.put(
+                `http://localhost:3000/api/albums/${props.album._id}`,
+                { title: title.value },
+                { headers }
+            )
+            emit('album-updated', title.value)
+        }
 
         for (const picture of removedPictures.value) {
             await axios.delete(`http://localhost:3000/api/pictures/${picture._id}`, { headers })

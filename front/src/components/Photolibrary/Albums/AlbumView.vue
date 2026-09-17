@@ -17,7 +17,13 @@
             <v-btn icon="mdi-trash-can" color="error" @click="deleteDialog = true"></v-btn>
         </v-card-actions>
 
-        <ManagePictureModal v-model="dialog" :album="album" :pictures="pictures" @picture-uploaded="fetchPictures" />
+        <ManagePictureModal
+            v-model="dialog"
+            :album="album"
+            :pictures="pictures"
+            @picture-uploaded="fetchPictures"
+            @album-updated="$emit('album-updated', { albumId: album._id, title: $event })"
+        />
         <DeleteAlbumModal v-model="deleteDialog" :album="album" @deleted="$emit('album-deleted', album._id)" />
     </v-card>
 </template>
@@ -36,7 +42,7 @@ const props = defineProps({
     }
 })
 
-defineEmits(['album-deleted'])
+defineEmits(['album-deleted', 'album-updated'])
 
 const dialog = ref(false)
 const deleteDialog = ref(false)

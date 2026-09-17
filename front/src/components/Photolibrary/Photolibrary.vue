@@ -25,7 +25,7 @@
 
     <v-row class="mt-4">
         <v-col v-for="album in albums" :key="album._id" cols="12">
-            <AlbumView :album="album" @album-deleted="removeAlbum" />
+            <AlbumView :album="album" @album-deleted="removeAlbum" @album-updated="updateAlbumTitle" />
         </v-col>
     </v-row>
     </v-container>
@@ -53,6 +53,13 @@ const fetchAlbums = async () => {
 
 const removeAlbum = (albumId) => {
     albums.value = albums.value.filter((album) => album._id !== albumId)
+}
+
+const updateAlbumTitle = ({ albumId, title }) => {
+    const album = albums.value.find((album) => album._id === albumId)
+    if (album) {
+        album.title = title
+    }
 }
 
 const signOut = async () => {
