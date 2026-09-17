@@ -241,3 +241,26 @@ app.delete('/api/albums/:albumId', requireAuth, async (req, res) => {
     }
 })
 
+app.put('/api/albums/:albumId', requireAuth, async (req, res) => {
+    const { albumId } = req.params
+    const { title } = req.body
+    try {
+        const owner = await User.findOne({ userId: req.userId })
+        if (!owner) {
+            return res.status(404).send({ error: 'User not found' })
+        }
+
+        const album = await Album.findOne({ _id: albumId, owner: owner._id })
+        if (!album) {
+            return res.status(404).send({ error: 'Album not found' })
+        }
+
+        album.title = title
+        await album.save()
+
+        res.status(200).send(album)
+    } catch (err) {
+        res.status(400).send({ error: err.message })
+    }
+})
+
