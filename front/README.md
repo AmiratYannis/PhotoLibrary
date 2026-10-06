@@ -69,4 +69,4 @@ cd front
 npm run build
 ```
 
-The output goes to `front/dist/`.
+The output goes to `front/dist/`.Ca

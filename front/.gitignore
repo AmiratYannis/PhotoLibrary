@@ -51,4 +51,3 @@ amplifytools.xcconfig
 **.sample
 #amplify-do-not-edit-end
 
-back/node_modules
