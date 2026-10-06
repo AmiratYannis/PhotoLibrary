@@ -16,7 +16,7 @@ const s3 = require('./config/s3')
 
 const app = express()
 
-const MONGO_URL = "mongodb://localhost:27017/photolibrary"
+const MONGO_URL = process.env.MONGO_URI || "mongodb://localhost:27017/photolibrary"
 const allowedOrigins = ['http://localhost:5173', 'https://main.d2sdaq07l1bg2y.amplifyapp.com'];
 
 

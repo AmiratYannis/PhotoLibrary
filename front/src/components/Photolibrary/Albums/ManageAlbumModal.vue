@@ -12,11 +12,31 @@
                 ></v-text-field>
 
                 <v-file-input
-                    v-model="selectedFile"
-                    label="Choose a picture"
+                    v-model="newFiles"
+                    label="Choose pictures"
                     accept="image/*"
+                    multiple
                     prepend-icon="mdi-image"
                 ></v-file-input>
+
+                <template v-if="selectedFiles.length">
+                    <v-divider class="my-4"></v-divider>
+                    <div class="text-subtitle-2 mb-2">New pictures</div>
+                    <v-row>
+                        <v-col v-for="(file, index) in selectedFiles" :key="file.name + index" cols="4">
+                            <div style="position: relative">
+                                <v-img :src="previewUrls[index]" :alt="file.name" aspect-ratio="1" cover></v-img>
+                                <v-btn
+                                    icon="mdi-close"
+                                    size="x-small"
+                                    color="error"
+                                    style="position: absolute; top: 4px; right: 4px;"
+                                    @click="removeSelectedFile(index)"
+                                ></v-btn>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </template>
 
                 <v-alert v-if="error" type="error" icon="false" class="mt-2" dense>
                     {{ error }}
@@ -87,7 +107,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'picture-uploaded', 'album-updated'])
 
-const selectedFile = ref(null)
+const selectedFiles = ref([])
+const newFiles = ref([])
+const previewUrls = ref([])
 const uploading = ref(false)
 const error = ref('')
 const title = ref(props.album.title)
@@ -102,18 +124,32 @@ watch(() => props.modelValue, (isOpen) => {
     if (!isOpen) {
         visiblePictures.value = [...props.pictures]
         title.value = props.album.title
+        selectedFiles.value = []
     }
 })
+
+watch(newFiles, (files) => {
+    if (files.length) {
+        selectedFiles.value = [...selectedFiles.value, ...files]
+        newFiles.value = []
+    }
+})
+
+watch(selectedFiles, (files) => {
+    previewUrls.value.forEach((url) => URL.revokeObjectURL(url))
+    previewUrls.value = files.map((file) => URL.createObjectURL(file))
+})
+
+const removeSelectedFile = (index) => {
+    selectedFiles.value = selectedFiles.value.filter((_, i) => i !== index)
+}
 
 const hidePicture = (pictureId) => {
     visiblePictures.value = visiblePictures.value.filter((picture) => picture._id !== pictureId)
 }
 
 const hasChanges = computed(() => {
-    // v-file-input's v-model can be a single File or an array of Files depending on Vuetify version/props
-    const file = Array.isArray(selectedFile.value) ? selectedFile.value[0] : selectedFile.value
-    // true if a new file is queued for upload, or at least one picture was marked for removal
-    return !!file || visiblePictures.value.length !== props.pictures.length || title.value !== props.album.title
+    return selectedFiles.value.length > 0 || visiblePictures.value.length !== props.pictures.length || title.value !== props.album.title
 })
 
 const removedPictures = computed(() => {
@@ -122,7 +158,7 @@ const removedPictures = computed(() => {
 
 const cancel = () => {
     emit('update:modelValue', false)
-    selectedFile.value = null
+    selectedFiles.value = []
     title.value = props.album.title
     error.value = ''
 }
@@ -160,9 +196,7 @@ const applyChanges = async () => {
             await axios.delete(`http://localhost:3000/api/pictures/${picture._id}`, { headers })
         }
 
-        // same normalization as in hasChanges above
-        const file = Array.isArray(selectedFile.value) ? selectedFile.value[0] : selectedFile.value
-        if (file) {
+        for (const file of selectedFiles.value) {
             const { data } = await axios.post(
                 `http://localhost:3000/api/albums/${props.album._id}/upload-url`,
                 { filename: file.name, contentType: file.type },
@@ -180,7 +214,7 @@ const applyChanges = async () => {
             )
         }
 
-        selectedFile.value = null
+        selectedFiles.value = []
         emit('update:modelValue', false)
         emit('picture-uploaded')
     } catch (err) {
