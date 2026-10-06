@@ -189,36 +189,70 @@ const applyChanges = async () => {
                 { title: title.value },
                 { headers }
             )
-            emit('album-updated', title.value)
+                .then(() => {
+                    emit('album-updated', title.value)
+                })
+                .catch((err) => {
+                    error.value = 'Failed to rename album.'
+                    throw err
+                })
         }
 
         for (const picture of removedPictures.value) {
             await axios.delete(`http://localhost:3000/api/pictures/${picture._id}`, { headers })
+                .then(() => {
+                    console.log(`Picture ${picture.name} deleted`)
+                })
+                .catch((err) => {
+                    error.value = `Failed to delete ${picture.name}.`
+                    throw err
+                })
         }
 
         for (const file of selectedFiles.value) {
-            const { data } = await axios.post(
+            const uploadInfo = await axios.post(
                 `http://localhost:3000/api/albums/${props.album._id}/upload-url`,
                 { filename: file.name, contentType: file.type },
                 { headers }
             )
+                .then((res) => {
+                    return res.data
+                })
+                .catch((err) => {
+                    error.value = `Failed to prepare upload for ${file.name}.`
+                    throw err
+                })
 
-            await axios.put(data.uploadUrl, file, {
+            await axios.put(uploadInfo.uploadUrl, file, {
                 headers: { 'Content-Type': file.type }
             })
+                .then(() => {
+                    console.log(`File ${file.name} uploaded`)
+                })
+                .catch((err) => {
+                    error.value = `Failed to upload ${file.name}.`
+                    throw err
+                })
 
             await axios.post(
                 'http://localhost:3000/api/pictures',
-                { name: file.name, key: data.key, albumId: props.album._id },
+                { name: file.name, key: uploadInfo.key, albumId: props.album._id },
                 { headers }
             )
+                .then(() => {
+                    console.log(`Picture ${file.name} saved`)
+                })
+                .catch((err) => {
+                    error.value = `Failed to save ${file.name}.`
+                    throw err
+                })
         }
 
         selectedFiles.value = []
         emit('update:modelValue', false)
         emit('picture-uploaded')
     } catch (err) {
-        error.value = err.message || 'Failed to save changes.'
+        if (!error.value) error.value = err.message || 'Failed to save changes.'
     } finally {
         uploading.value = false
     }

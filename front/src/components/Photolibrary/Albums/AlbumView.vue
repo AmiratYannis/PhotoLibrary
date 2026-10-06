@@ -50,8 +50,13 @@ const pictures = ref([])
 
 const fetchPictures = async () => {
     const headers = await getAuthHeader()
-    const res = await axios.get(`http://localhost:3000/api/albums/${props.album._id}/pictures`, { headers })
-    pictures.value = res.data
+    await axios.get(`http://localhost:3000/api/albums/${props.album._id}/pictures`, { headers })
+        .then((res) => {
+            pictures.value = res.data
+        })
+        .catch((err) => {
+            console.error('Failed to fetch pictures', err)
+        })
 }
 
 onMounted(fetchPictures)

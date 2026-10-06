@@ -76,13 +76,15 @@ const signIn = async (): Promise<void> => {
       return;
     }
 
-    try {
-      await axios.post('http://localhost:3000/api/users', {}, {
-        headers: await getAuthHeader(),
+    await axios.post('http://localhost:3000/api/users', {}, {
+      headers: await getAuthHeader(),
+    })
+      .then(() => {
+        console.log('User synced with backend');
+      })
+      .catch((syncErr) => {
+        console.error('Failed to sync user with backend', syncErr);
       });
-    } catch (syncErr) {
-      console.error('Failed to sync user with backend', syncErr);
-    }
 
     emit('login-success');
     router.push('/home');

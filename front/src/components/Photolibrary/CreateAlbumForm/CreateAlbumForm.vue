@@ -37,16 +37,28 @@ const createAlbum = async (): Promise<void> => {
   try {
     const headers = await getAuthHeader();
 
-    await axios.post('http://localhost:3000/api/users', {}, { headers });
+    await axios.post('http://localhost:3000/api/users', {}, { headers })
+      .then(() => {
+        console.log('User synced with backend');
+      })
+      .catch((err) => {
+        error.value = 'Failed to sync user.';
+        throw err;
+      });
 
     await axios.post('http://localhost:3000/api/albums', {
       title: albumName.value,
-    }, { headers });
-
-    albumName.value = '';
-    emit('album-created');
+    }, { headers })
+      .then(() => {
+        albumName.value = '';
+        emit('album-created');
+      })
+      .catch((err) => {
+        error.value = 'Failed to create album.';
+        throw err;
+      });
   } catch (err: any) {
-    error.value = err.message || 'Failed to create album.';
+    if (!error.value) error.value = err.message || 'Failed to create album.';
   } finally {
     loading.value = false;
   }

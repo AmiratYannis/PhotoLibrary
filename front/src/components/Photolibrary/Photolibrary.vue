@@ -47,8 +47,13 @@ const albums = ref([])
 
 const fetchAlbums = async () => {
     const headers = await getAuthHeader()
-    const res = await axios.get('http://localhost:3000/api/albums', { headers })
-    albums.value = res.data
+    await axios.get('http://localhost:3000/api/albums', { headers })
+        .then((res) => {
+            albums.value = res.data
+        })
+        .catch((err) => {
+            console.error('Failed to fetch albums', err)
+        })
 }
 
 const removeAlbum = (albumId) => {

@@ -43,10 +43,16 @@ const confirmDelete = async () => {
     try {
         const headers = await getAuthHeader()
         await axios.delete(`http://localhost:3000/api/albums/${props.album._id}`, { headers })
-        emit('deleted')
-        emit('update:modelValue', false)
+            .then(() => {
+                emit('deleted')
+                emit('update:modelValue', false)
+            })
+            .catch((err) => {
+                error.value = 'Failed to delete album.'
+                throw err
+            })
     } catch (err) {
-        error.value = err.message || 'Failed to delete album.'
+        if (!error.value) error.value = err.message || 'Failed to delete album.'
     } finally {
         deleting.value = false
     }
