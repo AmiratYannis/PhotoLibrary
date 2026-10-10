@@ -7,7 +7,7 @@
 
             <v-row class="mt-2">
                 <v-col v-for="picture in pictures" :key="picture._id" cols="6" sm="4" md="3" lg="2">
-                    <v-img :src="picture.url" :alt="picture.name" aspect-ratio="1" cover></v-img>
+                    <v-img :src="picture.url" :alt="picture.name" aspect-ratio="1" cover class="picture" tabindex="0"></v-img>
                 </v-col>
             </v-row>
         </v-card-text>
@@ -61,3 +61,16 @@ const fetchPictures = async () => {
 
 onMounted(fetchPictures)
 </script>
+
+<style scoped>
+.picture {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.picture:hover,
+.picture:focus-visible {
+    transform: scale(1.5);
+    z-index: 1;
+}
+</style>
