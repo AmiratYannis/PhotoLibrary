@@ -1,16 +1,17 @@
 <template>
   <v-app>
+    <Header v-if="showHeader" />
     <v-main>
      <router-view/>
     </v-main>
   </v-app>
 </template>
 
-<script lang="ts">
-import { defineComponent} from 'vue';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import Header from '@/components/Header/Header.vue';
 
-
-export default defineComponent({
-  name: 'App',
-});
+const route = useRoute();
+const showHeader = computed(() => route.name !== 'Home');
 </script>
