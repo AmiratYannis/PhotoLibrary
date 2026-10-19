@@ -11,7 +11,8 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import Header from '@/components/Header/Header.vue';
+const hiddenHeaderRoutes = ['Home', 'Login'];
 
 const route = useRoute();
-const showHeader = computed(() => route.name !== 'Home');
+const showHeader = computed(() => !hiddenHeaderRoutes.includes(route.name as string));
 </script>
