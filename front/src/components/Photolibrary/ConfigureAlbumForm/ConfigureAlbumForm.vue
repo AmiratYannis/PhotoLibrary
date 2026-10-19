@@ -155,7 +155,10 @@ const removeSelectedFile = (index: number): void => {
 };
 
 const removeExistingPicture = (picture: Picture): void => {
-    existingPictures.value = existingPictures.value.filter((existing) => existing._id !== picture._id);
+    const index = existingPictures.value.findIndex((existing) => existing._id === picture._id);
+    if (index !== -1) {
+        existingPictures.value.splice(index, 1);
+    }
     removedPictures.value = [...removedPictures.value, picture];
 };
 
