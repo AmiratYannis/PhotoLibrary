@@ -10,7 +10,7 @@
             </div>
 
             <v-card-text class="d-flex justify-center" style="gap: 40px">
-                <v-btn prepend-icon="mdi-image-multiple" color="primary" @click="goToAlbums">
+                <v-btn prepend-icon="mdi-image-multiple" color="primary" @click="browseDialog = true">
                     Browse albums
                 </v-btn>
 
@@ -19,16 +19,22 @@
                 </v-btn>
             </v-card-text>
         </v-card>
+
+        <BrowseAlbumModal v-model="browseDialog" @select="openAlbum" />
     </v-container>
 </template>
 
 <script setup>
+import { ref, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
+import BrowseAlbumModal from '@/components/Photolibrary/Albums/BrowseAlbumModal.vue'
 
 const router = useRouter()
 
-const goToAlbums = () => {
-    router.push('/albums')
+const browseDialog = ref(false)
+
+const openAlbum = (album) => {
+    router.push({ name: 'ManageAlbum', state: { album: toRaw(album) } })
 }
 
 const goToManageAlbum = () => {

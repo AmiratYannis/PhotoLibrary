@@ -1,5 +1,5 @@
 <template>
-    <v-form class="configure-form" @submit.prevent="save">
+    <v-form class="configure-form" @submit.prevent="onSubmit">
         <div class="text-h6 mb-2">Set up your album</div>
         <v-text-field
             v-model="title"
@@ -20,6 +20,16 @@
         ></v-file-input>
 
         <div class="picture-area my-6">
+            <div v-for="picture in existingPictures" :key="picture._id" class="picture-item">
+                <v-img :src="picture.url" :alt="picture.name" aspect-ratio="1" cover></v-img>
+                <v-btn
+                    icon="mdi-close"
+                    size="x-small"
+                    color="error"
+                    class="remove-btn"
+                    @click="removeExistingPicture(picture)"
+                ></v-btn>
+            </div>
             <div v-for="(file, index) in selectedFiles" :key="file.name + index" class="picture-item">
                 <v-img :src="previewUrls[index]" :alt="file.name" aspect-ratio="1" cover></v-img>
                 <v-btn
@@ -36,24 +46,68 @@
             {{ error }}
         </v-alert>
 
-        <div class="d-flex justify-end ga-2">
-            <v-btn variant="text" @click="cancel">Cancel</v-btn>
-            <v-btn color="primary" type="submit" :loading="saving" :disabled="!canSave">Save</v-btn>
+        <div class="d-flex ga-2">
+            <v-btn
+                v-if="isEditMode"
+                color="error"
+                variant="outlined"
+                prepend-icon="mdi-trash-can"
+                @click="deleteDialog = true"
+            >Delete</v-btn>
+            <v-spacer></v-spacer>
+            <v-btn variant="text" @click="cancel">{{ isEditMode ? 'Go back' : 'Cancel' }}</v-btn>
+            <v-btn color="primary" type="submit" :loading="saving" :disabled="!canSave">
+                {{ isEditMode ? 'Update' : 'Save' }}
+            </v-btn>
         </div>
+
+        <DeleteAlbumModal v-if="album" v-model="deleteDialog" :album="album" @deleted="router.push('/albums')" />
+
+        <v-dialog v-model="confirmDeleteDialog" max-width="400">
+            <v-card>
+                <v-card-title class="text-h6">Are you sur to update these album like that?</v-card-title>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn variant="text" @click="confirmDeleteDialog = false">No</v-btn>
+                    <v-btn color="error" :loading="saving" @click="onConfirmDelete">Yes</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-form>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { getAuthHeader } from '@/utils/auth';
+import DeleteAlbumModal from '@/components/Photolibrary/Albums/DeleteAlbumModal.vue';
+
+interface Album {
+    _id: string;
+    title: string;
+}
+
+interface Picture {
+    _id: string;
+    name: string;
+    url: string;
+}
+
+const props = defineProps<{
+    album?: Album;
+}>();
 
 const router = useRouter();
 
-const title = ref<string>('');
-const savedTitle = ref<string>('');
-const albumId = ref<string | null>(null);
+const isEditMode = computed(() => !!props.album);
+const title = ref<string>(props.album?.title ?? '');
+const savedTitle = ref<string>(props.album?.title ?? '');
+const albumId = ref<string | null>(props.album?._id ?? null);
+const existingPictures = ref<Picture[]>([]);
+const removedPictures = ref<Picture[]>([]);
+const deleteDialog = ref<boolean>(false);
+const confirmDeleteDialog = ref<boolean>(false);
 const newFiles = ref<File[]>([]);
 const selectedFiles = ref<File[]>([]);
 const previewUrls = ref<string[]>([]);
@@ -74,15 +128,52 @@ watch(selectedFiles, (files) => {
 
 const canSave = computed(() => {
     if (!title.value.trim()) return false;
-    return !albumId.value || title.value !== savedTitle.value || selectedFiles.value.length > 0;
+    return !albumId.value
+        || title.value !== savedTitle.value
+        || selectedFiles.value.length > 0
+        || removedPictures.value.length > 0;
+});
+
+const fetchPictures = async (): Promise<void> => {
+    const headers = await getAuthHeader();
+    await axios.get(`http://localhost:3000/api/albums/${albumId.value}/pictures`, { headers })
+        .then((res) => {
+            existingPictures.value = res.data;
+        })
+        .catch((err) => {
+            error.value = 'Failed to load pictures.';
+            console.error('Failed to fetch pictures', err);
+        });
+};
+
+onMounted(() => {
+    if (isEditMode.value) fetchPictures();
 });
 
 const removeSelectedFile = (index: number): void => {
     selectedFiles.value = selectedFiles.value.filter((_, i) => i !== index);
 };
 
+const removeExistingPicture = (picture: Picture): void => {
+    existingPictures.value = existingPictures.value.filter((existing) => existing._id !== picture._id);
+    removedPictures.value = [...removedPictures.value, picture];
+};
+
 const cancel = (): void => {
     router.push('/home');
+};
+
+const onSubmit = (): void => {
+    if (isEditMode.value) {
+        confirmDeleteDialog.value = true;
+    } else {
+        save();
+    }
+};
+
+const onConfirmDelete = (): void => {
+    confirmDeleteDialog.value = false;
+    save();
 };
 
 const save = async (): Promise<void> => {
@@ -109,6 +200,18 @@ const save = async (): Promise<void> => {
                 })
                 .catch((err) => {
                     error.value = 'Failed to rename album.';
+                    throw err;
+                });
+        }
+
+        for (const picture of [...removedPictures.value]) {
+            await axios.delete(`http://localhost:3000/api/pictures/${picture._id}`, { headers })
+                .then(() => {
+                    console.log(`Picture ${picture.name} deleted`);
+                    removedPictures.value = removedPictures.value.filter((removed) => removed._id !== picture._id);
+                })
+                .catch((err) => {
+                    error.value = `Failed to delete ${picture.name}.`;
                     throw err;
                 });
         }
