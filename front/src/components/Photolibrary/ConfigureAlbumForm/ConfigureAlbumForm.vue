@@ -126,13 +126,13 @@ watch(selectedFiles, (files) => {
     previewUrls.value = files.map((file) => URL.createObjectURL(file));
 });
 
-const canSave = computed(() => {
-    if (!title.value.trim()) return false;
-    return !albumId.value
-        || title.value !== savedTitle.value
+const hasChanges = computed(() => {
+    return title.value !== savedTitle.value
         || selectedFiles.value.length > 0
         || removedPictures.value.length > 0;
 });
+
+const canSave = computed(() => !!title.value.trim());
 
 const fetchPictures = async (): Promise<void> => {
     const headers = await getAuthHeader();
@@ -167,7 +167,9 @@ const cancel = (): void => {
 };
 
 const onSubmit = (): void => {
-    if (isEditMode.value) {
+    if (isEditMode.value && !hasChanges.value) {
+        router.push('/albums');
+    } else if (isEditMode.value) {
         confirmDeleteDialog.value = true;
     } else {
         save();
