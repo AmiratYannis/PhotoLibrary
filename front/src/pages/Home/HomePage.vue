@@ -9,13 +9,17 @@
                 </p>
             </div>
 
-            <v-card-text class="d-flex justify-center" style="gap: 40px">
+            <v-card-text class="d-flex justify-center flex-wrap" style="gap: 40px">
                 <v-btn prepend-icon="mdi-image-multiple" color="primary" @click="browseDialog = true">
                     Browse albums
                 </v-btn>
 
                 <v-btn prepend-icon="mdi-pencil" color="secondary" @click="goToManageAlbum">
                     Configure an album
+                </v-btn>
+
+                <v-btn prepend-icon="mdi-view-grid" color="primary" variant="outlined" @click="goToAlbums">
+                    Consult albums
                 </v-btn>
             </v-card-text>
         </v-card>
@@ -39,5 +43,9 @@ const openAlbum = (album) => {
 
 const goToManageAlbum = () => {
     router.push('/manage-album')
+}
+
+const goToAlbums = () => {
+    router.push('/albums')
 }
 </script>
