@@ -9,6 +9,7 @@
 
         <v-spacer />
 
+        <ThemeToggle />
         <v-btn icon="mdi-home" aria-label="Go to home page" @click="goHome" />
         <v-btn variant="text" prepend-icon="mdi-logout" class="mr-2" @click="signOut">Disconnect</v-btn>
     </v-app-bar>
@@ -17,6 +18,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { Auth } from 'aws-amplify';
+import ThemeToggle from '@/components/ThemeToggle/ThemeToggle.vue';
 
 const router = useRouter();
 

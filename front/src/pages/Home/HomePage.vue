@@ -1,5 +1,6 @@
 <template>
     <v-container class="d-flex justify-center align-center fill-height">
+        <ThemeToggle class="theme-toggle" />
         <v-card  class="pa-6">
             <div class="d-flex flex-column align-center mb-4">
                 <img src="/icon/photo-library-icon.svg" alt="Photolibrary icon" width="200" height="200" />
@@ -32,6 +33,7 @@
 import { ref, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import BrowseAlbumModal from '@/components/Photolibrary/Albums/BrowseAlbumModal.vue'
+import ThemeToggle from '@/components/ThemeToggle/ThemeToggle.vue'
 
 const router = useRouter()
 
@@ -49,3 +51,11 @@ const goToAlbums = () => {
     router.push('/albums')
 }
 </script>
+
+<style scoped>
+.theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+}
+</style>
