@@ -1,5 +1,6 @@
 <template>
     <v-container class="d-flex justify-center align-center fill-height">
+        <ThemeToggle class="theme-toggle" />
         <v-card width="400" class="pa-6">
             <v-card-title class="text-h5">Photolibrary</v-card-title>
 
@@ -44,6 +45,7 @@ import type { CognitoUser } from 'amazon-cognito-identity-js';
 import { Auth} from 'aws-amplify';
 import axios from 'axios';
 import { getAuthHeader } from '@/utils/auth';
+import ThemeToggle from '@/components/ThemeToggle/ThemeToggle.vue';
 
 
 const email = ref<string>('');
@@ -103,5 +105,13 @@ const goToForgotPassword = (): void => {
   router.push('/forgot-password');
 };
 
-   
+
 </script>
+
+<style scoped>
+.theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+}
+</style>

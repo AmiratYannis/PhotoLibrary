@@ -2,9 +2,17 @@ import { createVuetify } from 'vuetify'
 import 'vuetify/styles'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
+const getSavedTheme = () => {
+    try {
+        return localStorage.getItem('theme') === 'light' ? 'light' : 'dark'
+    } catch {
+        return 'dark'
+    }
+}
+
 const vuetify = createVuetify({
     theme: {
-        defaultTheme: 'dark', // 👈 Set dark as default theme
+        defaultTheme: getSavedTheme(),
         themes: {
             dark: {
                 dark: true,

@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar color="blue-darken-2" height="80" flat>
+    <v-app-bar color="blue-darken-2" theme="dark" height="80" flat>
         <div class="d-flex flex-column ml-4">
             <h1 class="header-title" @click="goHome">Photolibrary</h1>
             <span class="text-body-2 text-medium-emphasis">
