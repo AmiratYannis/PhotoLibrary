@@ -111,6 +111,7 @@ const confirmDeleteDialog = ref<boolean>(false);
 const newFiles = ref<File[]>([]);
 const selectedFiles = ref<File[]>([]);
 const previewUrls = ref<string[]>([]);
+const uploadedFiles = new Set<File>();
 const saving = ref<boolean>(false);
 const error = ref<string>('');
 
@@ -222,6 +223,8 @@ const save = async (): Promise<void> => {
         }
 
         for (const file of [...selectedFiles.value]) {
+            if (uploadedFiles.has(file)) continue;
+
             const uploadInfo = await axios.post(
                 `http://localhost:3000/api/albums/${albumId.value}/upload-url`,
                 { filename: file.name, contentType: file.type },
@@ -253,7 +256,7 @@ const save = async (): Promise<void> => {
             )
                 .then(() => {
                     console.log(`Picture ${file.name} saved`);
-                    selectedFiles.value = selectedFiles.value.filter((selected) => selected !== file);
+                    uploadedFiles.add(file);
                 })
                 .catch((err) => {
                     error.value = `Failed to save ${file.name}.`;

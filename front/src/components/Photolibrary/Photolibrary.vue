@@ -4,9 +4,6 @@
         <div v-if="!loading && albums.length === 0" class="d-flex flex-column align-center text-center mt-16">
             <v-icon icon="mdi-image-off-outline" size="160" color="grey" />
             <h2 class="text-h5 mt-4">No album to display</h2>
-            <p class="text-body-1 text-medium-emphasis mt-2">
-                You don't have any album yet.
-            </p>
         </div>
 
         <v-row v-else>
