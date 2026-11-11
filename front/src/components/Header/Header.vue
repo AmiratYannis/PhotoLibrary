@@ -10,25 +10,21 @@
         <v-spacer />
 
         <ThemeToggle />
-        <v-btn icon="mdi-home" aria-label="Go to home page" @click="goHome" />
-        <v-btn variant="text" prepend-icon="mdi-logout" class="mr-2" @click="signOut">Disconnect</v-btn>
+        <HomeButton />
+        <DisconnectButton class="mr-2" />
     </v-app-bar>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { Auth } from 'aws-amplify';
 import ThemeToggle from '@/components/ThemeToggle/ThemeToggle.vue';
+import DisconnectButton from '@/components/DisconnectButton/DisconnectButton.vue';
+import HomeButton from '@/components/HomeButton/HomeButton.vue';
 
 const router = useRouter();
 
 const goHome = () => {
     router.push('/home');
-};
-
-const signOut = async () => {
-    await Auth.signOut();
-    router.push('/');
 };
 </script>
 
