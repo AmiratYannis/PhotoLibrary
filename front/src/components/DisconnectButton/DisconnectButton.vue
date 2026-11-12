@@ -1,5 +1,8 @@
 <template>
-    <v-btn icon="mdi-logout" aria-label="Disconnect" @click="signOut" />
+    <v-btn icon aria-label="Disconnect" @click="signOut">
+        <v-icon icon="mdi-logout" />
+        <v-tooltip activator="parent" location="bottom">Disconnect</v-tooltip>
+    </v-btn>
 </template>
 
 <script setup lang="ts">

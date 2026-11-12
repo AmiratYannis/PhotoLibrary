@@ -23,22 +23,30 @@
             <div v-for="picture in existingPictures" :key="picture._id" class="picture-item">
                 <v-img :src="picture.url" :alt="picture.name" aspect-ratio="1" cover></v-img>
                 <v-btn
-                    icon="mdi-close"
+                    icon
                     size="x-small"
                     color="error"
                     class="remove-btn"
+                    aria-label="Remove picture"
                     @click="removeExistingPicture(picture)"
-                ></v-btn>
+                >
+                    <v-icon icon="mdi-close" />
+                    <v-tooltip activator="parent" location="bottom">Remove picture</v-tooltip>
+                </v-btn>
             </div>
             <div v-for="(file, index) in selectedFiles" :key="file.name + index" class="picture-item">
                 <v-img :src="previewUrls[index]" :alt="file.name" aspect-ratio="1" cover></v-img>
                 <v-btn
-                    icon="mdi-close"
+                    icon
                     size="x-small"
                     color="error"
                     class="remove-btn"
+                    aria-label="Remove picture"
                     @click="removeSelectedFile(index)"
-                ></v-btn>
+                >
+                    <v-icon icon="mdi-close" />
+                    <v-tooltip activator="parent" location="bottom">Remove picture</v-tooltip>
+                </v-btn>
             </div>
         </div>
 

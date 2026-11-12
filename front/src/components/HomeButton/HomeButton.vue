@@ -1,5 +1,8 @@
 <template>
-    <v-btn icon="mdi-home" aria-label="Go to home page" @click="goHome" />
+    <v-btn icon aria-label="Go to home page" @click="goHome">
+        <v-icon icon="mdi-home" />
+        <v-tooltip activator="parent" location="bottom">Go to Home page</v-tooltip>
+    </v-btn>
 </template>
 
 <script setup lang="ts">

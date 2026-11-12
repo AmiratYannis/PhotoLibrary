@@ -12,7 +12,10 @@
 
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn icon="mdi-pencil" color="primary" aria-label="Edit album" @click="editAlbum"></v-btn>
+            <v-btn icon color="primary" aria-label="Edit album" @click="editAlbum">
+                <v-icon icon="mdi-pencil" />
+                <v-tooltip activator="parent" location="bottom">Edit album</v-tooltip>
+            </v-btn>
         </v-card-actions>
     </v-card>
 </template>
