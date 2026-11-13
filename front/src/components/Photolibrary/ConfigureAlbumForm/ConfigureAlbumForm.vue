@@ -55,6 +55,11 @@
         </v-alert>
 
         <div class="d-flex ga-2">
+            <v-spacer></v-spacer>
+            <v-btn variant="text" @click="cancel">{{ isEditMode ? 'Go back' : 'Cancel' }}</v-btn>
+            <v-btn color="primary" type="submit" :loading="saving" :disabled="!canSave">
+                {{ isEditMode ? 'Update' : 'Save' }}
+            </v-btn>
             <v-btn
                 v-if="isEditMode"
                 color="error"
@@ -62,11 +67,6 @@
                 prepend-icon="mdi-trash-can"
                 @click="deleteDialog = true"
             >Delete</v-btn>
-            <v-spacer></v-spacer>
-            <v-btn variant="text" @click="cancel">{{ isEditMode ? 'Go back' : 'Cancel' }}</v-btn>
-            <v-btn color="primary" type="submit" :loading="saving" :disabled="!canSave">
-                {{ isEditMode ? 'Update' : 'Save' }}
-            </v-btn>
         </div>
 
         <DeleteAlbumModal v-if="album" v-model="deleteDialog" :album="album" @deleted="router.push('/albums')" />
