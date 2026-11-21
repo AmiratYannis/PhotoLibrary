@@ -20,10 +20,6 @@ const MONGO_URL = process.env.MONGO_URI || "mongodb://localhost:27017/photolibra
 const allowedOrigins = ['http://localhost:5173', 'https://main.d2sdaq07l1bg2y.amplifyapp.com'];
 
 
-mongoose.connect(MONGO_URL)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Unable to connect to MongoDB'))
-
 app.use(express.json());
 
 app.use(cors({
@@ -34,10 +30,6 @@ app.use(cors({
 
 }))
 
-
-app.listen(3000, () => {
-    console.log('Application launched in port 3000')
-})
 
 app.use(express.urlencoded({ extended: false }))
 
@@ -264,3 +256,16 @@ app.put('/api/albums/:albumId', requireAuth, async (req, res) => {
     }
 })
 
+
+
+if (require.main === module) {
+    mongoose.connect(MONGO_URL)
+        .then(() => console.log('Connected to MongoDB'))
+        .catch(err => console.error('Unable to connect to MongoDB'))
+
+    app.listen(3000, () => {
+        console.log('Application launched in port 3000')
+    })
+}
+
+module.exports = app
