@@ -25,7 +25,16 @@ const User = require('../models/User')
 const Album = require('../models/Album')
 const Picture = require('../models/Picture')
 
-const TEST_DB_URI = 'mongodb://localhost:27017/photolibrary-test'
+const TEST_DB_NAME = 'photolibrary-test'
+const TEST_DB_URI = `mongodb://localhost:27017/${TEST_DB_NAME}`
+
+// Refuse to delete anything unless we are on the test database
+function assertTestDb() {
+    const name = mongoose.connection.name
+    if (name !== TEST_DB_NAME) {
+        throw new Error(`Refusing to clean database "${name}": tests must run on "${TEST_DB_NAME}"`)
+    }
+}
 
 const ALICE = 'alice-sub'
 const BOB = 'bob-sub'
@@ -66,16 +75,20 @@ describe('PhotoLibrary routes with MongoDB', () => {
 
     beforeAll(async () => {
         await mongoose.connect(TEST_DB_URI)
+        assertTestDb()
     })
 
     beforeEach(async () => {
+        assertTestDb()
         jest.clearAllMocks()
         await Promise.all([User.deleteMany({}), Album.deleteMany({}), Picture.deleteMany({})])
         alice = await registerUser(ALICE)
     })
 
     afterAll(async () => {
-        await mongoose.connection.dropDatabase()
+        if (mongoose.connection.name === TEST_DB_NAME) {
+            await mongoose.connection.dropDatabase()
+        }
         await mongoose.connection.close()
     })
 
