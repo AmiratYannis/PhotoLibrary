@@ -20,6 +20,7 @@ const MONGO_URL = process.env.MONGO_URI || "mongodb://localhost:27017/photolibra
 const allowedOrigins = ['http://localhost:5173', 'https://main.d2sdaq07l1bg2y.amplifyapp.com'];
 
 
+
 app.use(express.json());
 
 app.use(cors({
@@ -29,6 +30,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 
 }))
+
 
 
 app.use(express.urlencoded({ extended: false }))
@@ -256,8 +258,6 @@ app.put('/api/albums/:albumId', requireAuth, async (req, res) => {
     }
 })
 
-
-
 if (require.main === module) {
     mongoose.connect(MONGO_URL)
         .then(() => console.log('Connected to MongoDB'))
@@ -267,5 +267,6 @@ if (require.main === module) {
         console.log('Application launched in port 3000')
     })
 }
+
 
 module.exports = app
